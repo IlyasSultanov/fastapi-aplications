@@ -4,10 +4,16 @@ services:
       dockerfile: ./docker-build/Dockerfile
       context: ./
     environment:
-      APP_CONFIG__DB__URL: postgresql+asyncpg://...:...@pg:5432/...
-      APP_CONFIG__DB__ECHO: 0
+      APP_PORT: 8000
+      PROJECT_NAME: fastapi-aplications
+      VERSION: "0.1.0"
+      DESCRIPTION: "FastAPI starter app"
+      DEBUG: "true"
+      CORS_ALLOW_CREDENTIALS: "true"
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@pg:5432/app
+      SETTINGS_ENV_FILE: /app/.env.docker
     ports:
-      - "8000:8000"
+      - "8080:8000"
     depends_on:
       pg:
         condition: service_healthy
@@ -15,9 +21,9 @@ services:
   pg:
     image: postgres:17.0-alpine
     environment:
-      POSTGRES_DB: ...
-      POSTGRES_USER: ...
-      POSTGRES_PASSWORD: ...
+      POSTGRES_DB: app
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
     volumes:
