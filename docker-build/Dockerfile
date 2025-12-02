@@ -1,4 +1,4 @@
-FROM python:3.12.6-bookworm
+FROM python:3.12.6-slim
 
 # --- System settings ---
 ENV PYTHONUNBUFFERED=1
@@ -6,25 +6,29 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 WORKDIR /app
 
-# --- Install uv and deps ---
-RUN pip install --upgrade pip wheel "uv"
+# --- Install uv (correctly) ---
+RUN apt-get update && apt-get install -y --no-install-recommends curl && \
+    curl -LsSf https://astral.sh/uv/install.sh | sh && \
+    rm -rf /var/lib/apt/lists/*
 
-# Use uv instead of pip/poetry
-RUN uv config virtualenvs.create false
+# Add uv to PATH
+ENV PATH="/root/.local/bin:$PATH"
 
-# Copy project configuration
-COPY pyproject.toml poetry.lock ./
+# Now you can use uv reliably
+RUN uv --version
 
-# Install dependencies (with dev deps for pytest)
-RUN uv sync --dev
+# Copy project files
+COPY pyproject.toml uv.lock ./
 
-# Copy all source code
+# Install dependencies (dev included)
+RUN uv sync --all-extras --dev
+
+# Copy source
 COPY . .
 
 # Make scripts executable
 RUN chmod +x prestart.sh
-RUN chmod +x run
 
 # --- Run app ---
 ENTRYPOINT ["./prestart.sh"]
-CMD ["./run"]
+CMD ["uv", "run", "uvicorn", "app.main:main_app", "--host", "0.0.0.0", "--port", "8000"]
