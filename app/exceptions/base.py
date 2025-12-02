@@ -31,3 +31,15 @@ class ValidationException(ExceptionBase):
 
     def __init__(self, message: str, context: Optional[Dict[str, Any]] = None) -> None:
         super().__init__(f"Validation Error: {message}", context)
+
+
+class ForbiddenException(ExceptionBase):
+
+    def __init__(self, message: str, context: Optional[Dict[str, Any]] = None) -> None:
+        super().__init__(f"ForbiddenException: {message}", context)
+
+
+class BadRequestException(ExceptionBase):
+
+    def __init__(self, message: str, context: Optional[Dict[str, Any]] = None) -> None:
+        super().__init__(f"Bad Request: {message}", context)
